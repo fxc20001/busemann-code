@@ -939,7 +939,7 @@ def wtfun_generator(g,N,
         periodic_weights=False,
         period=1,
         use_vertex_weights=False,
-        set_weight_label_in_graph=False,
+        set_weight_label_in_graph=True,
         graph_shape='rectangle',
         random_fc = np.random.uniform,
         size=0):
@@ -1099,22 +1099,12 @@ def printA(g,m,arr):
         for j in range(len(arr)):
             print(format(arr[i][j],'.4f'),end='\t')
         print()
-    # print(' ',end='\t')
-    # for i in range(len(g.vs)):
-    #     print(g.vs[i]['name'],end='\t')
-    # print()
-    # for i in range(len(arr)):
-    #     print(g.vs[i]['name'],end='\t')
-    #     for j in range(len(arr)):
-    #         print(format(arr[i][j],'.4f'),end='\t')
-    #     print()
 
 def eigenvalue(g,m,h):
     num_vertices = m**2
-    # print(num_vertices)
 
     # assign A(w,w')
-    A = np.ones((num_vertices,num_vertices))*-9999
+    A = np.ones((num_vertices,num_vertices))*np.NINF
     for i in range(m):
         for j in range(m):
             # horizontal
@@ -1157,3 +1147,8 @@ def maxplus(arr,v):
         x[i] = np.max([arr[k][i]+v[k] for k in range(len(v))])
 
     return x
+
+def plot_gpl_from_range(g,m,hrange):
+    x = np.linspace(start=-hrange,stop=hrange,num=1000)
+    plt.plot(x,[eigenvalue(g,m,[-np.abs(h),np.abs(h)]) for h in x])
+    plt.savefig('m({})_hrange({}).png'.format(m,hrange))
