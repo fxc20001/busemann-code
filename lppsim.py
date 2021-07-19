@@ -1152,3 +1152,11 @@ def plot_gpl_from_range(g,m,hrange):
     x = np.linspace(start=-hrange,stop=hrange,num=1000)
     plt.plot(x,[eigenvalue(g,m,[-np.abs(h),np.abs(h)]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
+
+def get_num_facets(val):
+    num = 0
+    for x,y in zip(val[:-1],val[1:]):
+        delta = y-x
+        if delta > 0.027:
+            num += 1
+    print(num)
