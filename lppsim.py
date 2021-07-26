@@ -2,7 +2,7 @@
 # Want to compute correlations of busemann functions
 
 from functools import wraps
-from re import S
+from re import A, S
 import sys,math,readline,os
 
 import time
@@ -1100,10 +1100,10 @@ def printA(g,m,arr):
             print(format(arr[i][j],'.4f'),end='\t')
         print()
 
-def eigenvalue(g,m,h):
+def form_matrix_A(g,m):
     num_vertices = m**2
 
-    # assign A(w,w')
+    helper = np.zeros((num_vertices,num_vertices))
     A = np.ones((num_vertices,num_vertices))*np.NINF
     for i in range(m):
         for j in range(m):
@@ -1116,7 +1116,8 @@ def eigenvalue(g,m,h):
             
             k1 = i*m+j
             k2 = ((i+1)%m)*m+j
-            A[k1][k2] = t+h[0]
+            A[k1][k2] = t
+            helper[k1][k2] = 1
 
             # vertical
             u = g.vs.find(name=str(i)+','+str(j)).index
@@ -1125,9 +1126,29 @@ def eigenvalue(g,m,h):
             eid = g.get_eid(u,v)
             t = float(g.es[eid]['label'])
             
-            A[i*m+j][i*m+(j+1)%m] = t+h[1]
-    # printA(g,m,A)
+            k1 = i*m+j
+            k2 = i*m+(j+1)%m
+            A[k1][k2] = t
+            helper[k1][k2] = -1
 
+    return A,np.array(helper)
+
+def extend_matrix_A(A,helper,h):
+    hor = np.where(helper==1)
+    ver = np.where(helper==-1)
+
+    for i in range(len(hor[0])):
+        u,v = hor[0][i],hor[1][i]
+        A[u][v] = A[u][v]+h[0]
+    for i in range(len(ver[0])):
+        u,v = ver[0][i],ver[1][i]
+        A[u][v] = A[u][v]+h[1]
+
+    return A
+
+def eigenvalue(g,A,m,h):
+    num_vertices = m**2
+    
     x = np.zeros((num_vertices,num_vertices+1))
     # choose arbitrary j∈num_vertices and set x(0) = e_j
     j = np.random.randint(0,num_vertices)
@@ -1149,8 +1170,10 @@ def maxplus(arr,v):
     return x
 
 def plot_gpl_from_range(g,m,hrange):
+    A,helper = form_matrix_A(g,m)
     x = np.linspace(start=-hrange,stop=hrange,num=1000)
-    plt.plot(x,[eigenvalue(g,m,[-np.abs(h),np.abs(h)]) for h in x])
+
+    plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[-np.abs(h),np.abs(h)]),m,[-np.abs(h),np.abs(h)]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
 
 def get_num_facets(val):
