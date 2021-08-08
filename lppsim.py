@@ -1131,22 +1131,24 @@ def form_matrix_A(g,m):
             A[k1][k2] = t
             helper[k1][k2] = -1
 
-    return A,np.array(helper)
+    return np.array(A),np.array(helper)
 
 def extend_matrix_A(A,helper,h):
+    tmp = A.copy()
+
     hor = np.where(helper==1)
     ver = np.where(helper==-1)
 
     for i in range(len(hor[0])):
         u,v = hor[0][i],hor[1][i]
-        A[u][v] = A[u][v]+h[0]
+        tmp[u][v] = A[u][v]+h[0]
     for i in range(len(ver[0])):
         u,v = ver[0][i],ver[1][i]
-        A[u][v] = A[u][v]+h[1]
+        tmp[u][v] = A[u][v]+h[1]
 
-    return A
+    return tmp
 
-def eigenvalue(g,A,m,h):
+def eigenvalue(A,m):
     num_vertices = m**2
     
     x = np.zeros((num_vertices,num_vertices+1))
@@ -1173,13 +1175,19 @@ def plot_gpl_from_range(g,m,hrange):
     A,helper = form_matrix_A(g,m)
     x = np.linspace(start=-hrange,stop=hrange,num=1000)
 
-    plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[-np.abs(h),np.abs(h)]),m,[-np.abs(h),np.abs(h)]) for h in x])
+    plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[h,-h]),m,[h,-h]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
 
-def get_num_facets(val):
+def get_num_facets(arr):
     num = 0
-    for x,y in zip(val[:-1],val[1:]):
-        delta = y-x
-        if delta > 0.027:
-            num += 1
-    print(num)
+
+    last_diff = 0
+    for i in range(1,len(arr)):
+        if i == 1:
+            last_diff = arr[i]-arr[i-1]
+        else:
+            delta = arr[i]-arr[i-1]
+            if delta != last_diff:
+                num += 1
+                last_diff = delta
+    return num
