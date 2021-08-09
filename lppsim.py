@@ -1178,15 +1178,15 @@ def plot_gpl_from_range(g,m,hrange):
     plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[h,-h]),m,[h,-h]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
 
-def get_num_facets(arr):
+def get_num_facets(arr,d):
     num = 0
 
     last_diff = 0
     for i in range(1,len(arr)):
         if i == 1:
-            last_diff = round(arr[i]-arr[i-1],4)
+            last_diff = round((arr[i]-arr[i-1])/d,4)
         else:
-            delta = round(arr[i]-arr[i-1],4)
+            delta = round((arr[i]-arr[i-1])/d,4)
             if delta != last_diff:
                 num += 1
                 last_diff = delta
