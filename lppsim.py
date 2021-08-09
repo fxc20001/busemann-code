@@ -1184,9 +1184,9 @@ def get_num_facets(arr):
     last_diff = 0
     for i in range(1,len(arr)):
         if i == 1:
-            last_diff = arr[i]-arr[i-1]
+            last_diff = round(arr[i]-arr[i-1],4)
         else:
-            delta = arr[i]-arr[i-1]
+            delta = round(arr[i]-arr[i-1],4)
             if delta != last_diff:
                 num += 1
                 last_diff = delta
