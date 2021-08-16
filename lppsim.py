@@ -1178,16 +1178,39 @@ def plot_gpl_from_range(g,m,hrange):
     plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[h,-h]),m,[h,-h]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
 
-def get_num_facets(arr,d):
-    num = 0
+def perpendicularDistance(pt,u,v):
+    # ax+by+c = 0
+    a = (v[1]-u[1])/(v[0]-u[0])
+    b = 1
+    c = a*u-v[1]
 
-    last_diff = 0
-    for i in range(1,len(arr)):
-        if i == 1:
-            last_diff = round((arr[i]-arr[i-1])/d,4)
-        else:
-            delta = round((arr[i]-arr[i-1])/d,4)
-            if delta != last_diff:
-                num += 1
-                last_diff = delta
-    return num
+    d = abs((a*pt[0] + b*pt[1] + c)) / (np.sqrt(a**2+b**2))
+
+    return d
+
+def DouglasPeucker(x,arr,epsilon):
+    ## Find the point with the maximum distance
+    dmax = 0
+    index = 0
+    end = len(arr)
+    for i in range(1,end-1):
+        d = perpendicularDistance([x[i],arr[i]],[x[0],arr[0]],[x[-1],arr[-1]]) 
+        if (d > dmax):
+            index = i
+            dmax = d
+    
+    ResultList = []
+    
+    ## If max distance is greater than epsilon, recursively simplify
+    if dmax > epsilon:
+        ## Recursive call
+        recResults1 = DouglasPeucker(x[:index+1],arr[:index+1],epsilon)
+        recResults2 = DouglasPeucker(x[index:],arr[index:],epsilon)
+
+        # Build the result list
+        ResultList = np.append(recResults1,recResults2,axis=1)
+    else:
+        ResultList = [[x[0],arr[0]], [x[-1],arr[-1]]]
+    
+    ## Return the result
+    return ResultList
