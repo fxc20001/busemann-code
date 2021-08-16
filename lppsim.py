@@ -1236,5 +1236,7 @@ def get_num_facets(x,arr,epsilon,use_DP=False):
                     post3 = arr[i+3]
                     if not ae(post2,post3):
                         i += 2
+            else:
+                i += 1
                         
         return num
