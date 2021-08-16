@@ -1213,3 +1213,28 @@ def DouglasPeucker(x,arr,epsilon):
     
     ## Return the result
     return ResultList
+
+def ae(val1,val2,epsilon):
+    return True if abs(val1-val2) < epsilon else False
+
+def get_num_facets(x,arr,epsilon,use_DP=False):
+    if use_DP:
+        return int(len(DouglasPeucker(x,arr,epsilon))/2)
+    else:
+        num = 0
+
+        i = 4
+        while i < len(arr):
+            pre2,pre1,curr,post1,post2 = arr[i-2],arr[i-1],arr[i],arr[i+1],arr[i+2]
+
+            # could be facet 
+            if not (ae(pre1,curr) and ae(curr,post1)):
+                if ae(pre1,pre2) and ae(post1,post2):
+                    num += 1
+                    i += 2
+                elif not ae(post1,post2):
+                    post3 = arr[i+3]
+                    if not ae(post2,post3):
+                        i += 2
+                        
+        return num
