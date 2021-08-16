@@ -1178,13 +1178,12 @@ def plot_gpl_from_range(g,m,hrange):
     plt.plot(x,[eigenvalue(g,extend_matrix_A(A,helper,[h,-h]),m,[h,-h]) for h in x])
     plt.savefig('m({})_hrange({}).png'.format(m,hrange))
 
-def perpendicularDistance(pt,u,v):
+def perpendicularDistance(x0,x1,u0,u1,v0,v1):
     # ax+by+c = 0
-    a = (v[1]-u[1])/(v[0]-u[0])
-    b = 1
-    c = a*u-v[1]
+    slope = (v1-u1)/(v0-u0)
+    offset = v1-slope*v0
 
-    d = abs((a*pt[0] + b*pt[1] + c)) / (np.sqrt(a**2+b**2))
+    d = abs((-slope*x0+x1-offset)) / (np.sqrt(slope**2+1))
 
     return d
 
@@ -1194,7 +1193,7 @@ def DouglasPeucker(x,arr,epsilon):
     index = 0
     end = len(arr)
     for i in range(1,end-1):
-        d = perpendicularDistance([x[i],arr[i]],[x[0],arr[0]],[x[-1],arr[-1]]) 
+        d = perpendicularDistance(x[i],arr[i],x[0],arr[0],x[-1],arr[-1])
         if (d > dmax):
             index = i
             dmax = d
@@ -1208,7 +1207,7 @@ def DouglasPeucker(x,arr,epsilon):
         recResults2 = DouglasPeucker(x[index:],arr[index:],epsilon)
 
         # Build the result list
-        ResultList = np.append(recResults1,recResults2,axis=1)
+        ResultList = np.append(recResults1,recResults2,axis=0)
     else:
         ResultList = [[x[0],arr[0]], [x[-1],arr[-1]]]
     
